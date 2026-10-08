@@ -1,0 +1,4 @@
+zomato.csv
+*.parquet
+*.jsonl
+__pycache__/
