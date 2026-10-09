@@ -2,3 +2,5 @@ zomato.csv
 *.parquet
 *.jsonl
 __pycache__/
+.vscode/
+desktop.ini
