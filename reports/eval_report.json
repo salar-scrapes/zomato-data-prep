@@ -23,7 +23,7 @@
     "gold_sha256": "9dca445c6f455ed0d3de12abf342a0e1d2c4830b9201b64f61e13f0437ddcb2b",
     "model": "BAAI/bge-small-en-v1.5",
     "model_commit_hash": null,
-    "created_utc": "2026-10-11T12:01:09+00:00"
+    "created_utc": "2026-10-11T18:12:09+00:00"
   },
   "systems": {
     "B|exact": {
@@ -288,7 +288,7 @@
         "n": 50
       },
       "short_list_rate_lt5_outlets": 0.0,
-      "outlets_returned_mean": 104.68
+      "outlets_returned_mean": 104.7
     }
   },
   "by_type": {
@@ -555,7 +555,7 @@
           "n": 32
         },
         "short_list_rate_lt5_outlets": 0.0,
-        "outlets_returned_mean": 103.15625
+        "outlets_returned_mean": 103.1875
       }
     },
     "profile_fact": {

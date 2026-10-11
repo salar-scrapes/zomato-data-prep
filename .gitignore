@@ -33,3 +33,7 @@ venv/
 desktop.ini
 Thumbs.db
 .DS_Store
+
+# AI helper files
+merge_code.py
+all_code_for_claude.txt

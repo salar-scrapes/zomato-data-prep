@@ -29,7 +29,7 @@ python embed_chunks.py --variants B A800
 python load_chroma.py --variants B A800
 python parity_test.py --variants B A800             # Chroma vs exact search check
 
-# gold queries (50 queries, written by hand / LLM-drafted)
+# gold queries (50 queries, drafted with an LLM from sampled reviews; see Limitations)
 python generate_eval_sample.py                      # -> data/processed/eval_sample_draft.csv
 python fill_queries.py
 python make_gold_queries.py                         # -> eval/gold_queries.jsonl
@@ -89,39 +89,49 @@ Data: Kaggle, Zomato Bangalore Restaurants.
 
 ## Conclusion
 
-**Strategy B (structured chunking with profile metadata) ranks the correct outlet higher than fixed 800-character windows (A800), and the ranking gain is statistically clear. The top-5 recall gain points the same way but is not conclusive at this sample size.**
+**On the primary metric (Hit@5), Strategy B is ahead of fixed 800-character windows (A800) by +0.14, but the 95% interval [-0.019, +0.275] includes zero, so the result is inconclusive at 50 queries. On MRR (exploratory) B is ahead by +0.139 [+0.072, +0.211]. Removing B's outlet-profile chunks did not hurt (reviews-only B: Hit@5 0.420, MRR 0.346), so on this gold set the gain comes from chunking reviews individually, not from profile metadata.**
+
+### Strategies compared
+
+- **A800 (baseline):** per outlet, all reviews are joined in order and cut into fixed 800-character windows with 120 characters of overlap. Windows ignore review boundaries.
+- **B:** one chunk per review (a review longer than the embedding model's token limit is split at sentence boundaries), plus one templated profile chunk per outlet built from fields such as name, type, location, cuisines, dishes and cost.
+- **B_restricted (control):** B with outlets that have no indexed reviews removed from the results, so both strategies draw from the same pool of outlets (A800 cannot return outlets without reviews).
+- **B_reviews_only (control):** B without its profile chunks.
 
 ### Results
 
-50 gold queries, each with one gold outlet. 95% confidence intervals in brackets.
+50 gold queries, each with one gold outlet. The 95% confidence intervals in brackets are outlet-level cluster bootstrap intervals (10,000 resamples, percentile method), because queries about the same outlet are not independent. McNemar's exact test ignores that clustering and is shown for reference only.
 
 | System | Hit@1 | Hit@5 | MRR |
 |---|---|---|---|
 | B (exact) | 0.240 [0.154, 0.327] | 0.400 [0.294, 0.510] | 0.322 [0.237, 0.405] |
 | B (Chroma) | 0.220 [0.122, 0.314] | 0.380 [0.255, 0.500] | 0.303 [0.206, 0.396] |
 | B_restricted (exact) | 0.240 [0.154, 0.327] | 0.400 [0.294, 0.510] | 0.323 [0.238, 0.406] |
+| B_reviews_only (exact) | 0.260 [0.157, 0.380] | 0.420 [0.314, 0.531] | 0.346 [0.245, 0.454] |
 | A800 (exact) | 0.100 [0.020, 0.196] | 0.260 [0.104, 0.431] | 0.183 [0.082, 0.294] |
 | A800 (Chroma) | 0.100 [0.020, 0.196] | 0.260 [0.128, 0.400] | 0.179 [0.084, 0.283] |
 
 Primary comparison (B - A800, exact engine):
 
-- **MRR: +0.139 [+0.072, +0.211].** The interval excludes 0, so B ranks the right outlet higher.
-- **Hit@5: +0.140 [-0.019, +0.275].** Inconclusive, because the interval includes 0 (McNemar p = 0.065). B alone found the gold outlet in the top 5 on 9 queries, A800 alone on 2.
+- **Hit@5 (primary): +0.140 [-0.019, +0.275].** Inconclusive, because the interval includes 0 (McNemar p = 0.065). B alone found the gold outlet in the top 5 on 9 queries, A800 alone on 2.
+- **MRR (exploratory): +0.139 [+0.072, +0.211].** The interval excludes 0, which points to B ranking the right outlet higher.
 
 ### Takeaways
 
-- **Ranking quality:** B places the correct outlet higher on average than A800 (MRR 0.32 vs 0.18).
+- **Ranking quality (exploratory):** B places the correct outlet higher on average than A800 (MRR 0.32 vs 0.18).
+- **Source of the gain:** removing B's profile chunks (B_reviews_only) did not hurt (Hit@5 0.420, MRR 0.346), so on this gold set the gain comes from chunking reviews individually rather than from profile metadata.
 - **Vector store:** Chroma's approximate index tracks brute-force exact search closely (differences of 0.02 or less on Hit@1, Hit@5 and MRR for both strategies), so the comparison between strategies is not an artefact of the vector store.
 
 ### Limitations
 
 - **Small, narrow gold set:** 50 queries drawn from 13 outlets. Each query has a single gold outlet, so a query that other outlets could also answer counts as a miss, which makes the recall figures conservative.
-- **LLM-drafted queries:** The queries were drafted with an LLM from sampled reviews and may not match how real users phrase questions.
+- **Gold-set selection:** the queries cover the first 13 outlets, alphabetically, of a 50-outlet random sample (queries were written for the first 50 reviews of the sorted sample). They are not a random draw across the sample.
+- **LLM-drafted queries:** The queries were drafted with an LLM from reviews that are in the index, so they may favour per-review chunking and may not match how real users phrase questions.
 - **Modest absolute recall:** Even B surfaces the gold outlet in the top 5 for only 40% of queries.
-- **Bundled changes:** B combines structured chunking with profile metadata, so these results do not separate the contribution of each.
+- **Profile chunks:** B_reviews_only (B without its profile chunks) scores Hit@5 0.420 and MRR 0.346 versus 0.400 and 0.322 for B, so the profile chunks show no measurable benefit. All 50 queries were drafted from reviews, so this gold set cannot reward profile information. The result does not show that profile chunks are useless in general.
 
 ### Next steps
 
 - Grow the gold set to about 150 queries spread across all sampled outlets. That would narrow the Hit@5 interval by roughly 40%.
-- Run chunking-only and metadata-only variants to attribute the gain.
+- Add queries drafted from profile fields (cuisine, cost, location) to test the profile chunks fairly.
 - Add a keyword (BM25) hybrid or a reranker and re-run the same harness.
