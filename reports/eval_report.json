@@ -15,6 +15,7 @@
       "B|exact",
       "B|chroma",
       "B_restricted|exact",
+      "B_reviews_only|exact",
       "A800|exact",
       "A800|chroma"
     ],
@@ -22,7 +23,7 @@
     "gold_sha256": "9dca445c6f455ed0d3de12abf342a0e1d2c4830b9201b64f61e13f0437ddcb2b",
     "model": "BAAI/bge-small-en-v1.5",
     "model_commit_hash": null,
-    "created_utc": "2026-10-11T07:33:04+00:00"
+    "created_utc": "2026-10-11T12:01:09+00:00"
   },
   "systems": {
     "B|exact": {
@@ -157,6 +158,50 @@
       "short_list_rate_lt5_outlets": 0.0,
       "outlets_returned_mean": 110.02
     },
+    "B_reviews_only|exact": {
+      "Hit@1": {
+        "mean": 0.26,
+        "ci": [
+          0.1568627450980392,
+          0.38
+        ],
+        "n": 50
+      },
+      "Hit@5": {
+        "mean": 0.42,
+        "ci": [
+          0.3136948529411765,
+          0.5306122448979592
+        ],
+        "n": 50
+      },
+      "Hit@10": {
+        "mean": 0.52,
+        "ci": [
+          0.40384615384615385,
+          0.6326530612244898
+        ],
+        "n": 50
+      },
+      "MRR": {
+        "mean": 0.34592236298721696,
+        "ci": [
+          0.24457086821331403,
+          0.4536095338276542
+        ],
+        "n": 50
+      },
+      "MRR@10": {
+        "mean": 0.3366666666666667,
+        "ci": [
+          0.23781037414965986,
+          0.44333333333333336
+        ],
+        "n": 50
+      },
+      "short_list_rate_lt5_outlets": 0.0,
+      "outlets_returned_mean": 105.68
+    },
     "A800|exact": {
       "Hit@1": {
         "mean": 0.1,
@@ -243,7 +288,7 @@
         "n": 50
       },
       "short_list_rate_lt5_outlets": 0.0,
-      "outlets_returned_mean": 104.7
+      "outlets_returned_mean": 104.68
     }
   },
   "by_type": {
@@ -380,6 +425,50 @@
         "short_list_rate_lt5_outlets": 0.0,
         "outlets_returned_mean": 108.90625
       },
+      "B_reviews_only|exact": {
+        "Hit@1": {
+          "mean": 0.21875,
+          "ci": [
+            0.09090909090909091,
+            0.375
+          ],
+          "n": 32
+        },
+        "Hit@5": {
+          "mean": 0.375,
+          "ci": [
+            0.23529411764705882,
+            0.5333928571428562
+          ],
+          "n": 32
+        },
+        "Hit@10": {
+          "mean": 0.4375,
+          "ci": [
+            0.29411764705882354,
+            0.6
+          ],
+          "n": 32
+        },
+        "MRR": {
+          "mean": 0.2961026505008598,
+          "ci": [
+            0.18132506299865672,
+            0.42812236763513817
+          ],
+          "n": 32
+        },
+        "MRR@10": {
+          "mean": 0.28229166666666666,
+          "ci": [
+            0.16764635854341736,
+            0.41614247311827945
+          ],
+          "n": 32
+        },
+        "short_list_rate_lt5_outlets": 0.0,
+        "outlets_returned_mean": 105.6875
+      },
       "A800|exact": {
         "Hit@1": {
           "mean": 0.09375,
@@ -466,7 +555,7 @@
           "n": 32
         },
         "short_list_rate_lt5_outlets": 0.0,
-        "outlets_returned_mean": 103.1875
+        "outlets_returned_mean": 103.15625
       }
     },
     "profile_fact": {
@@ -601,6 +690,50 @@
         },
         "short_list_rate_lt5_outlets": 0.0,
         "outlets_returned_mean": 114.08333333333333
+      },
+      "B_reviews_only|exact": {
+        "Hit@1": {
+          "mean": 0.3333333333333333,
+          "ci": [
+            0.0,
+            0.6
+          ],
+          "n": 12
+        },
+        "Hit@5": {
+          "mean": 0.5,
+          "ci": [
+            0.2,
+            0.7692307692307693
+          ],
+          "n": 12
+        },
+        "Hit@10": {
+          "mean": 0.6666666666666666,
+          "ci": [
+            0.38461538461538464,
+            0.9166666666666666
+          ],
+          "n": 12
+        },
+        "MRR": {
+          "mean": 0.4333333333333333,
+          "ci": [
+            0.16363636363636364,
+            0.6733749999999994
+          ],
+          "n": 12
+        },
+        "MRR@10": {
+          "mean": 0.4333333333333333,
+          "ci": [
+            0.16363636363636364,
+            0.6733749999999994
+          ],
+          "n": 12
+        },
+        "short_list_rate_lt5_outlets": 0.0,
+        "outlets_returned_mean": 108.25
       },
       "A800|exact": {
         "Hit@1": {
@@ -779,6 +912,35 @@
         "short_list_rate_lt5_outlets": 0.0,
         "outlets_returned_mean": 107.83333333333333
       },
+      "B_reviews_only|exact": {
+        "Hit@1": {
+          "mean": 0.3333333333333333,
+          "ci": null,
+          "n": 6
+        },
+        "Hit@5": {
+          "mean": 0.5,
+          "ci": null,
+          "n": 6
+        },
+        "Hit@10": {
+          "mean": 0.6666666666666666,
+          "ci": null,
+          "n": 6
+        },
+        "MRR": {
+          "mean": 0.4368055555555555,
+          "ci": null,
+          "n": 6
+        },
+        "MRR@10": {
+          "mean": 0.43333333333333335,
+          "ci": null,
+          "n": 6
+        },
+        "short_list_rate_lt5_outlets": 0.0,
+        "outlets_returned_mean": 100.5
+      },
       "A800|exact": {
         "Hit@1": {
           "mean": 0.16666666666666666,
@@ -840,33 +1002,62 @@
     }
   },
   "exploratory": {
-    "B_restricted_vs_A800": {
+    "B_reviews_only_vs_A800": {
       "n": 50,
       "hit5_diff": {
-        "mean": 0.14,
+        "mean": 0.16,
         "ci": [
-          -0.019230769230769232,
-          0.27450980392156865
+          0.0,
+          0.3
         ],
         "n": 50
       },
       "mrr_diff": {
-        "mean": 0.139550772719562,
+        "mean": 0.16259439496721048,
         "ci": [
-          0.07363438305334002,
-          0.2120097050669113
+          0.09385807882639356,
+          0.2403723596571038
         ],
         "n": 50
       },
       "hit5_discordant": {
-        "b_only": 9,
+        "b_only": 10,
         "a_only": 2,
-        "mcnemar_exact_p": 0.0654296875
+        "mcnemar_exact_p": 0.03857421875
       },
       "rr_wins_losses_ties": {
-        "b_better": 30,
-        "a_better": 6,
-        "tie": 14
+        "b_better": 26,
+        "a_better": 8,
+        "tie": 16
+      }
+    },
+    "B_reviews_only_vs_B": {
+      "n": 50,
+      "hit5_diff": {
+        "mean": 0.02,
+        "ci": [
+          -0.04,
+          0.0851063829787234
+        ],
+        "n": 50
+      },
+      "mrr_diff": {
+        "mean": 0.023890072497370688,
+        "ci": [
+          -0.0018710604113085132,
+          0.06416392947638302
+        ],
+        "n": 50
+      },
+      "hit5_discordant": {
+        "b_only": 2,
+        "a_only": 1,
+        "mcnemar_exact_p": 1.0
+      },
+      "rr_wins_losses_ties": {
+        "b_better": 12,
+        "a_better": 5,
+        "tie": 33
       }
     },
     "B_vs_A800_excluding_leaky": {

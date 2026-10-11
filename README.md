@@ -1,19 +1,58 @@
-# Zomato Bangalore: Data Prep Pipeline
+# Zomato Bangalore: Data Prep Pipeline and RAG Chunking Experiment
 
-Collapses the Kaggle Zomato Bangalore Restaurants dataset to one record per outlet, cleans `rate` and `approx_cost`, validates the result with Pandera, and exports Parquet and JSONL for analytics or downstream LLM ingestion.
+This repository has two parts built on the Kaggle Zomato Bangalore Restaurants dataset:
+
+1. **Data prep** (`cleaner.py`, `prepare_reviews.py`): collapse 51,717 rows to one record per outlet, clean `rate` and `approx_cost`, validate with Pandera, and export Parquet and JSONL.
+2. **Retrieval experiment** (`build_chunks.py` onward): chunk outlet profiles and reviews two ways, embed them, load them into Chroma, and measure which chunking finds the right outlet more often (Hit@k, MRR) on 50 gold queries.
+
+```
+zomato.csv --cleaner.py--> zomato_cleaned.parquet --+
+     |                                              +--build_chunks.py--> chunks_*.parquet
+     +--prepare_reviews.py--> reviews_clean.parquet-+          |
+                                                     embed_chunks.py --> load_chroma.py --> evaluate.py
+```
+
+## Run
+
+```
+pip install -r requirements.txt
+# download zomato.csv from Kaggle into this folder
+
+# Part 1: data prep
+python cleaner.py                                   # -> zomato_cleaned.parquet, zomato_rag_ready.jsonl
+python diagnostics.py                               # outlets whose rows disagree (table below)
+
+# Part 2: retrieval experiment
+python prepare_reviews.py --raw zomato.csv          # -> data/processed/reviews_clean.parquet
+python build_chunks.py --outlets zomato_cleaned.parquet
+python embed_chunks.py --variants B A800
+python load_chroma.py --variants B A800
+python parity_test.py --variants B A800             # Chroma vs exact search check
+
+# gold queries (50 queries, written by hand / LLM-drafted)
+python generate_eval_sample.py                      # -> data/processed/eval_sample_draft.csv
+python fill_queries.py
+python make_gold_queries.py                         # -> eval/gold_queries.jsonl
+python evaluate.py --gold eval/gold_queries.jsonl --variants B A800
+
+# tests
+pytest -q
+```
 
 ## Finding
 Exact-row `drop_duplicates()` removes 0 rows because every row has a unique `url` (51,717 unique values in 51,717 rows). The same outlet repeats across many rows (different `listed_in(type)` values, vote counts and URLs), so the 51,717 rows describe 12,499 outlets when keyed on `name` + `address`.
 
 After normalizing formatting (`3.9/5` vs `3.9 /5`, newlines in phone numbers), rows of the same outlet still disagree on `rate`, `votes` or `approx_cost` for 4,277 of the 12,499 outlets. The cause was not verified.
 
-## Pipeline
+## Pipeline (`cleaner.py`)
 1. Standardize column names
 2. Collapse to one row per outlet (key: `name` + `address`): keep the highest-vote row, set `location` to the most frequent label, keep `listed_intype` / `listed_incity` as lists
 3. Add `is_new` flag; convert `NEW` / `-` ratings to null
 4. Parse `rate` and `approx_cost` to numeric
 5. Validate with Pandera
 6. Export Parquet and JSONL
+
+`build_chunks.py` later applies the normalised outlet identity from `outlet_key.py` and logs every extra merge it makes.
 
 ## Results (this dataset)
 | Metric | Value |
@@ -37,28 +76,20 @@ Outlets whose rows disagree, after formatting normalization (`python diagnostics
 ## Schema rules
 `rate` between 0 and 5, `approx_cost` > 0, non-null `name` and `address`.
 
-## Run
-```
-pip install -r requirements.txt
-# download zomato.csv from Kaggle into this folder
-python cleaner.py
-python diagnostics.py
-```
-
-## Limitations
-- `name` + `address` is a heuristic key; the same outlet with a differently spelled address would not merge.
+## Limitations (data prep)
+- `name` + `address` is a heuristic key; the same outlet with a differently spelled address would not merge in `cleaner.py` (`build_chunks.py` merges some of these using the normalised key).
 - Only the highest-vote row is kept; its `rate` (and so `is_new`) is used even if a sibling row has a different or non-missing rating.
+- Missing `votes` are treated as 0 when choosing the highest-vote row (the count is printed by `cleaner.py`).
 - `location` differs across rows for 28 outlets; the most frequent label is kept.
 - `phone` differs across rows for some outlets and is not normalized.
 - Only `rate`, `approx_cost` and `votes` are cleaned; `phone`, `cuisines`, `dish_liked`, `reviews_list`, `menu_item` and other columns are carried over as-is.
-- JSONL is not chunked or embedded; it is input to a RAG pipeline, not a finished one.
 - The CSV and the generated Parquet/JSONL files are not committed.
 
 Data: Kaggle, Zomato Bangalore Restaurants.
 
 ## Conclusion
 
-**Strategy B (structured chunking with profile metadata) ranks the correct outlet higher than fixed 800-word chunks (A800), and the ranking gain is statistically clear. The top-5 recall gain points the same way but is not conclusive at this sample size.**
+**Strategy B (structured chunking with profile metadata) ranks the correct outlet higher than fixed 800-character windows (A800), and the ranking gain is statistically clear. The top-5 recall gain points the same way but is not conclusive at this sample size.**
 
 ### Results
 

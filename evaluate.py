@@ -250,6 +250,9 @@ def evaluate(variants: dict, Q: np.ndarray, gold: pd.DataFrame, leaky: np.ndarra
             systems[f"{vn}|chroma"] = {"rows": chroma_rows[vn], "v": v, "allowed": None}
         if vn == "B" and "A800" in variants:
             systems["B_restricted|exact"] = {"rows": ex, "v": v, "allowed": outlets_with_reviews}
+        if vn == "B":  # control: review chunks only
+            keep = np.flatnonzero(v.chunk_type == "review")
+            systems["B_reviews_only|exact"] = {"rows": keep[exact_topk(v.E[keep], Q, k_fetch)[0]], "v": v, "allowed": None}
     for s in systems.values():
         s["scores"] = score_lists(s["rows"], s["v"].outlet_of, gold_sets, s["allowed"])
 
@@ -274,8 +277,9 @@ def evaluate(variants: dict, Q: np.ndarray, gold: pd.DataFrame, leaky: np.ndarra
         prim["verdict_mrr"] = verdict(prim["mrr_diff"])
         report["primary"] = {"definition": "B minus A800, exact engine, all queries", **prim}
         ex = report["exploratory"]
-        if "B_restricted|exact" in sc:
-            ex["B_restricted_vs_A800"] = compare(sc["A800|exact"], sc["B_restricted|exact"], W)
+        if "B_reviews_only|exact" in sc:
+            ex["B_reviews_only_vs_A800"] = compare(sc["A800|exact"], sc["B_reviews_only|exact"], W)
+            ex["B_reviews_only_vs_B"] = compare(sc["B|exact"], sc["B_reviews_only|exact"], W)
         if leaky.any():
             ex["B_vs_A800_excluding_leaky"] = compare(sc["A800|exact"], sc["B|exact"], W, ~leaky)
         ex["B_vs_A800_by_type"] = {t: compare(sc["A800|exact"], sc["B|exact"], W, qtype == t)
@@ -307,8 +311,10 @@ def evaluate(variants: dict, Q: np.ndarray, gold: pd.DataFrame, leaky: np.ndarra
             fg, t1 = int(sc_["first_gold_row"][q]), int(sc_["top1_row"][q])
             recs.append({
                 "query_id": gold["query_id"].iat[q], "query_type": qtype[q], "leaky": bool(leaky[q]), "system": n,
-                "rank": None if np.isnan(sc_["rank"][q]) else int(sc_["rank"][q]), "hit5": int(sc_["hit5"][q]),
+                "rank": None if np.isnan(sc_["rank"][q]) else int(sc_["rank"][q]),
+                "hit1": int(sc_["hit1"][q]), "hit5": int(sc_["hit5"][q]),
                 "rr": float(sc_["rr"][q]), "n_outlets": int(sc_["n_outlets"][q]),
+                "outlet_key": gold["gold_outlet_keys"].iat[q][0],
                 "first_gold_chunk_type": v.chunk_type[fg] if fg >= 0 else None,
                 "first_gold_chunk_id": v.chunk_id[fg] if fg >= 0 else None,
                 "top1_chunk_id": v.chunk_id[t1] if t1 >= 0 else None,

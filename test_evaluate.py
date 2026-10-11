@@ -174,7 +174,7 @@ def test_evaluate_end_to_end_direction_and_structure():
     report, pq = ev.evaluate(variants, Q, gold, leaky, owr, chroma_rows=exact_rows, n_boot=300)
 
     names = set(report["systems"])
-    assert names == {"A800|exact", "A800|chroma", "B|exact", "B|chroma", "B_restricted|exact"}
+    assert names == {"A800|exact", "A800|chroma", "B|exact", "B|chroma", "B_restricted|exact", "B_reviews_only|exact"}
     assert len(pq) == len(names) * len(gold)
     # B was built to be better: point estimate must favour it, and its 'profile' chunk must be what surfaces the gold outlet
     assert report["systems"]["B|exact"]["Hit@1"]["mean"] > report["systems"]["A800|exact"]["Hit@1"]["mean"]

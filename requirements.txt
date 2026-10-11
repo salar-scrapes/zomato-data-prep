@@ -1,3 +1,10 @@
 pandas
+numpy
 pandera
 pyarrow
+torch
+sentence-transformers
+transformers
+chromadb
+ftfy
+pytest
