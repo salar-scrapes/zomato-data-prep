@@ -1,6 +1,35 @@
+# ---- secrets: never commit ----
+.env
+.env.*
+!.env.example
+*.pem
+
+# ---- data and derived artifacts (all regenerable from scripts) ----
 zomato.csv
+data/
 *.parquet
 *.jsonl
+*.npy
+*.npz
+*.sqlite3
+chroma*/
+
+# ---- tracked on purpose: gold eval set + aggregate reports ----
+!eval/**
+!reports/**
+
+# ---- python / tooling ----
 __pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# ---- editor / OS ----
 .vscode/
+.idea/
 desktop.ini
+Thumbs.db
+.DS_Store

@@ -1,0 +1,31 @@
+{
+  "variant": "A800",
+  "rows": 65892,
+  "hnsw": {
+    "space": "cosine",
+    "ef_construction": 200,
+    "ef_search": 256,
+    "m": 16
+  },
+  "chroma_version": "1.5.9",
+  "n_queries": 500,
+  "k_fetch": 150,
+  "chunk_recall@10_mean": 0.993,
+  "chunk_recall@10_min": 0.7,
+  "chunk_recall@50_mean": 0.9883200000000001,
+  "chunk_top1_agreement": 0.992,
+  "outlet_top5_overlap_mean": 0.9952000000000001,
+  "outlet_top5_overlap_min": 0.8,
+  "outlet_top1_agreement": 0.994,
+  "queries_with_short_ann_outlet_list": 0,
+  "metric_inferred": "cosine_or_ip",
+  "exact_ms_per_query": 3.37,
+  "ann_ms_per_query": 5.69,
+  "checks": {
+    "chunk_recall@10_mean >= 0.98": true,
+    "outlet_top5_overlap_mean >= 0.98": true,
+    "no short ANN outlet lists": true
+  },
+  "passed": true,
+  "created_utc": "2026-10-11T05:46:26+00:00"
+}
